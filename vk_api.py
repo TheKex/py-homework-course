@@ -32,6 +32,12 @@ class VkApiHandler:
             albums_dict[alb['id']] = alb['title']
         return albums_dict
 
-    def get_user_info(self, user_id):
-        url = VkApiHandler.base_url
+    def get_user_info(self, user_ids):
+        url = VkApiHandler.base_url + 'users.get'
+        params = {
+            'user_ids': user_ids,
+            **self.params
+        }
+        resp = requests.get(url, params=params)
+        return resp
 

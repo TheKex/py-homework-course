@@ -19,14 +19,18 @@ if __name__ == '__main__':
     vk_api_version = os.getenv('VK_API_VERSION')
 
     vk = VkApiHandler(vk_api_token, vk_api_version)
+    _, albums = vk.get_albums('299783284')
+    # albums = vk.get_all_albums(None)
+    # pprint(albums, indent=2)
+    #
+    # root_folder_path = '/vk_photos'
+    # _, resp = ya.is_folder_exists('root_folder_path')
+    # print(resp)
 
-    albums = vk.get_all_albums(None)
-    pprint(albums, indent=2)
+    # resp = vk.get_user_info('id222528601')
+    # pprint(resp.json(), indent=2)
 
-    root_folder_path = '/vk_photos'
-    _, resp = ya.is_folder_exists('root_folder_path')
 
-    pprint(_)
 
 
 
