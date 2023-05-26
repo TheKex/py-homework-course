@@ -1,5 +1,5 @@
 import requests
-
+from pprint import pprint
 
 class VkApiHandler:
     base_url = 'https://api.vk.com/method/'
@@ -17,7 +17,7 @@ class VkApiHandler:
         :return:
         '''
         url = VkApiHandler.base_url + 'photos.getAlbums'
-        params = {'owner_id':owner_id, **self.params}
+        params = {'owner_id': owner_id, **self.params}
         resp = requests.get(url, params=params)
         return resp.status_code, resp.json()
 
@@ -41,3 +41,17 @@ class VkApiHandler:
         resp = requests.get(url, params=params)
         return resp
 
+    def get_max_size(sizes):
+        url = max(sizes, key=lambda size: size['height'])
+        return url
+
+    def get_photos(self, owner_id, album_id):
+        url = VkApiHandler.base_url + 'photos.get'
+        params = {
+            'owner_id': owner_id,
+            'album_id': album_id,
+            **self.params
+        }
+        resp = requests.get(url, params=params)
+        max_sizes = [{'id': item['id'], 'url': VkApiHandler.get_max_size(item['sizes'])} for item in resp.json()['response']['items']]
+        return max_sizes
