@@ -14,6 +14,16 @@ class YaDiskUploader:
             'Authorization': f'OAuth {self.token}'
         }
 
+    def upload_photo_to_disk(self, path, file_name, photo_data):
+        url = YaDiskUploader.base_url + f'resources/upload'
+        params = {
+            'path': f'{path}/{file_name}'
+        }
+        resp = requests.get(url=url, params=params, headers=self.get_headers())
+        if 'href' not in resp.json():
+            return None
+        return requests.post(url=resp.json()['href'], files={'file': photo_data})
+
     def is_folder_exists(self, path_in_disk):
         url = YaDiskUploader.base_url + f'resources'
         params = {
