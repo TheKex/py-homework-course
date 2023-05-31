@@ -11,11 +11,6 @@ class VkApiHandler:
         }
 
     def get_albums(self, owner_id):
-        '''
-        Возвращает список альбомов пользователя или сообщества
-        :param owner_id: Идентификатор пользователя или сообщества, которому принадлежат альбомы.
-        :return:
-        '''
         url = VkApiHandler.base_url + 'photos.getAlbums'
         params = {'owner_id': owner_id, **self.params}
         resp = requests.get(url, params=params)
@@ -42,8 +37,8 @@ class VkApiHandler:
         return resp
 
     def get_max_size(sizes):
-        url = max(sizes, key=lambda size: size['height'])
-        return url
+        max_size_img_data = max(sizes, key=lambda size: size['height'])
+        return max_size_img_data
 
     def get_photos(self, owner_id, album_id):
         url = VkApiHandler.base_url + 'photos.get'
@@ -53,5 +48,7 @@ class VkApiHandler:
             **self.params
         }
         resp = requests.get(url, params=params)
-        max_sizes = [{'id': item['id'], 'url': VkApiHandler.get_max_size(item['sizes'])} for item in resp.json()['response']['items']]
+        if 'response' not in resp.json():
+            return None
+        max_sizes = [{'id': item['id'], 'photo': VkApiHandler.get_max_size(item['sizes'])} for item in resp.json()['response']['items']]
         return max_sizes
