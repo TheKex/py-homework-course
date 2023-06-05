@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from pprint import pprint
 from time import sleep
+import json
 
 import requests
 from tqdm import tqdm
@@ -24,6 +25,7 @@ if __name__ == '__main__':
 
     albums = vk.get_all_albums(owner_id)
     pbar_alb = tqdm(albums, desc='Общий прогресс', unit='album')
+    photos_info = list()
     for index, alb in enumerate(albums):
         sleep(0.34)
         photos = vk.get_photos(owner_id, alb)
@@ -36,11 +38,18 @@ if __name__ == '__main__':
         for photo in tqdm(photos, desc=albums[alb], unit='photo'):
             img_data = requests.get(photo['photo']['url']).content
             ya.upload_photo_to_disk('backup', f'{photo["id"]}.jpg', img_data)
+            photos_info.append({
+                'file_name': f'{photo["id"]}.jpg',
+                'size': photo['photo']['type']
+            })
             pbar_alb.update(total_pbar_incr)
 
         pbar_alb.n = index + 1
         pbar_alb.refresh()
 
+    if len(photos_info) > 0:
+        with open('photo_info.json', 'w') as f:
+            json.dump(photos_info, f)
 
 
 
