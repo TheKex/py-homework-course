@@ -1,7 +1,5 @@
-from tqdm import tqdm
-from time import sleep
+from datetime import datetime
 
+date = datetime.now().strftime("%Y-%m-%d %H:%M:%S").replace(' ', '_')
 
-
-for i in range(1000):
-    sleep(0.1)
+print(date)
