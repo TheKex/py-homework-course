@@ -25,13 +25,20 @@ if __name__ == '__main__':
     ya_disk_token = os.getenv('YA_DISK_TOKEN')
     ya = YaDiskUploader(ya_disk_token)
 
-    # vk_api_token = os.getenv('VK_API_TOKEN')
-    # vk_api_version = os.getenv('VK_API_VERSION') | '5.131'
+
+
+    vk_api_token = os.getenv('VK_API_TOKEN_2')
+    vk_api_version = os.getenv('VK_API_VERSION') or '5.131'
+
+    if vk_api_token is None:
+        print('Для работы скрипта, необходимо получить API токкен от ВК: \n'
+              'Вы можете использовать инструкцию http://github.com\n'
+              'После получения необходимо поместить токен в файл ".env" в папаку со скриптом\n'
+              'Пример содержимого файла ".env" можно найти в файле ".env.example"')
+        exit(0)
+
+    owner_id = input('Введите id пользователя, ссылку на страницу или короткое имя:')
     # vk = VkApiHandler(vk_api_token, vk_api_version)
-
-    path_on_dir = 'backup/dir/help'
-
-    ya.force_create_folder(path_on_dir)
 
 
     #
