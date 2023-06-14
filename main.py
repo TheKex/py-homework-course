@@ -1,9 +1,11 @@
 import os
+import sys
 from dotenv import load_dotenv
 from pprint import pprint
 from time import sleep
 import json
 from datetime import datetime
+
 
 import requests
 from tqdm import tqdm
@@ -12,23 +14,39 @@ from yandex_disk import YaDiskUploader
 from vk_api import VkApiHandler
 
 
-def backup_vk(vk_token, vk_user_id, ya_disk_token, vk_api_version='5.131'):
+def backup_vk(vk_token, vk_user, ya_disk_token, vk_api_version='5.131', folder='backup', pb_bar=False):
     ya = YaDiskUploader(ya_disk_token)
     vk = VkApiHandler(vk_token, vk_api_version)
+    user_id = vk.resolve_scree_name(vk_user) or vk_user
+
+
     json_result = ''
     return json_result
 
 
 if __name__ == '__main__':
-    default_folder = 'backup/' + datetime.now().strftime("%Y-%m-%d %H:%M:%S").replace(' ', '_')
     load_dotenv()
+
+    vk_api_token = os.getenv('VK_API_TOKEN')
+    vk_api_version = '5.131'
+    vk_user = None
     ya_disk_token = os.getenv('YA_DISK_TOKEN')
-    ya = YaDiskUploader(ya_disk_token)
+    ya_disk_folder = None
+    json_folder = None
 
-
-
-    vk_api_token = os.getenv('VK_API_TOKEN_2')
-    vk_api_version = os.getenv('VK_API_VERSION') or '5.131'
+    # Получение значений из командной строки
+    args = sys.argv
+    args_len = len(args)
+    if args_len > 1:
+        vk_api_token = args[1]
+    if args_len > 2:
+        vk_user = args[2]
+    if args_len > 3:
+        ya_disk_token = args[3]
+    if args_len > 4:
+        ya_disk_folder = args[4]
+    if args_len > 5:
+        json_folder = args[5]
 
     if vk_api_token is None:
         print('Для работы скрипта, необходимо получить API токкен от ВК: \n'
@@ -37,9 +55,28 @@ if __name__ == '__main__':
               'Пример содержимого файла ".env" можно найти в файле ".env.example"')
         exit(0)
 
-    owner_id = input('Введите id пользователя, ссылку на страницу или короткое имя:')
-    # vk = VkApiHandler(vk_api_token, vk_api_version)
+    is_not_user = vk_user is None
+    while is_not_user:
+        vk_user = input('Введите id пользователя, ссылку на страницу или короткое имя:')
+        is_not_user = vk_user is None
 
+    is_not_ya_token = ya_disk_token is None
+    while is_not_ya_token:
+        ya_disk_token = input('Введине токен яндекс диска:')
+        is_not_ya_token = ya_disk_token is None
+
+    default_folder = 'backup_' + datetime.now().strftime("%Y-%m-%d %H:%M:%S").replace(' ', '_')
+    if ya_disk_folder is None:
+        ya_disk_folder = input(f'Введите название папки на яндекс диске (по-умолчанию {default_folder}):') or default_folder
+
+    if json_folder is None:
+        json_folder = input(f'Введите папку, куда сохранить данные о фотографиях (по-умолчнию {os.getcwd()})') or os.getcwd()
+
+    photos = backup_vk(vk_api_token, vk_user, ya_disk_token, vk_api_version='5.131', folder=ya_disk_folder, pb_bar=True)
+
+    if len(photos) > 0:
+        with open(json_folder + f'/photos_{default_folder}.json', 'w') as f:
+            json.dump(photos, f)
 
     #
     # resp = ya.create_folder('backup/dir/help')

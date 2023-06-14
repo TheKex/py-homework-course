@@ -45,10 +45,28 @@ class VkApiHandler:
         params = {
             'owner_id': owner_id,
             'album_id': album_id,
+            'extended': 1,
             **self.params
         }
         resp = requests.get(url, params=params)
         if 'response' not in resp.json():
             return None
-        max_sizes = [{'id': item['id'], 'photo': VkApiHandler.get_max_size(item['sizes'])} for item in resp.json()['response']['items']]
+        max_sizes = [{'id': item['id'],
+                      'likes': item['likes'],
+                      'photo': VkApiHandler.get_max_size(item['sizes'])} for item in resp.json()['response']['items']]
         return max_sizes
+
+    def resolve_scree_name(self, screen_name):
+        url = VkApiHandler.base_url + 'utils.resolveScreenName'
+        params = {
+            'screen_name': screen_name,
+            **self.params
+        }
+        resp = requests.get(url, params=params)
+        if resp.status_code == 200 and 'response' in resp.json():
+            if len(resp.json().get('response')):
+                return resp.json().get('response').get('object_id')
+            return None
+        else:
+            return None
+

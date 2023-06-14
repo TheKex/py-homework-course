@@ -1,5 +1,9 @@
 from datetime import datetime
+from vk_api import VkApiHandler
+import dotenv
+import os
+import sys
 
-date = datetime.now().strftime("%Y-%m-%d %H:%M:%S").replace(' ', '_')
+print(os.getcwd())
+print(sys.argv)
 
-print(date)
