@@ -7,3 +7,4 @@ import sys
 print(os.getcwd())
 print(sys.argv)
 
+print(os.path.join(os.getcwd(), 'some_path.jpg'))
