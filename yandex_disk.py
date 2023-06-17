@@ -31,10 +31,11 @@ class YaDiskUploader:
         }
         resp = requests.get(url, params=params, headers=self.get_headers())
         if resp.status_code == 200:
-            return True, resp
-        if resp.status_code == 404:
-            return False, resp
-        return None, resp
+            if resp.json()['type'] == 'dir':
+                return True, resp
+            else:
+                return False, resp
+        return False, resp
 
     def create_folder(self, path):
         url = YaDiskUploader.base_url + f'resources'
@@ -42,6 +43,32 @@ class YaDiskUploader:
             'path': path
         }
         resp = requests.put(url, params=params, headers=self.get_headers())
+        return resp
 
+    def force_create_folder(self, path):
+        folders = path.split('/')
 
+        if len(folders) == 1:
+            is_exists, _ = self.is_folder_exists(folders[0])
+            if is_exists:
+                return True
+            else:
+                return self.create_folder(folders[0])
+
+        tmp = folders[0]
+        nested_folders = [{'exists': None,
+                           'path': tmp}]
+        for i in folders[1::]:
+            tmp = tmp + '/' + i
+            nested_folders.append({'exists': None,
+                                   'path': tmp})
+
+        for index, folder in enumerate(nested_folders[::-1]):
+            is_exists, resp = self.is_folder_exists(folder['path'])
+            nested_folders[-index - 1]['exists'] = is_exists
+
+        for folder in nested_folders:
+            if not folder['exists']:
+                self.create_folder(folder['path'])
+        return True
 

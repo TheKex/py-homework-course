@@ -17,15 +17,18 @@ class VkApiHandler:
         return resp.status_code, resp.json()
 
     def get_all_albums(self, owner_id):
-        _, albums = self.get_albums(owner_id)
-        albums_dict = {
-            'wall': 'фотографии со стены',
-            'profile': 'фотографии профиля',
-            'saved': 'сохраненные фотографии'
-        }
-        for alb in albums['response']['items']:
-            albums_dict[alb['id']] = alb['title']
-        return albums_dict
+        status_code, albums = self.get_albums(owner_id)
+        if status_code == 200:
+            albums_dict = {
+                'wall': 'фотографии со стены',
+                'profile': 'фотографии профиля',
+                'saved': 'сохраненные фотографии'
+            }
+            for alb in albums['response']['items']:
+                albums_dict[alb['id']] = alb['title']
+            return status_code, albums_dict
+        else:
+            return status_code, None
 
     def get_user_info(self, user_ids):
         url = VkApiHandler.base_url + 'users.get'
@@ -45,10 +48,30 @@ class VkApiHandler:
         params = {
             'owner_id': owner_id,
             'album_id': album_id,
+            'extended': 1,
             **self.params
         }
         resp = requests.get(url, params=params)
-        if 'response' not in resp.json():
+        if resp.status_code == 200:
+            if 'response' not in resp.json():
+                return None
+            max_sizes = [{'id': item['id'],
+                          'likes': item['likes'],
+                          'photo': VkApiHandler.get_max_size(item['sizes'])} for item in resp.json()['response']['items']]
+            return max_sizes
+        return None
+
+    def resolve_scree_name(self, screen_name):
+        url = VkApiHandler.base_url + 'utils.resolveScreenName'
+        params = {
+            'screen_name': screen_name,
+            **self.params
+        }
+        resp = requests.get(url, params=params)
+        if resp.status_code == 200 and 'response' in resp.json():
+            if len(resp.json().get('response')):
+                return resp.json().get('response').get('object_id')
             return None
-        max_sizes = [{'id': item['id'], 'photo': VkApiHandler.get_max_size(item['sizes'])} for item in resp.json()['response']['items']]
-        return max_sizes
+        else:
+            return None
+
