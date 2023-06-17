@@ -80,8 +80,8 @@ if __name__ == '__main__':
 
     if vk_api_token is None:
         print('Для работы скрипта, необходимо получить API токен от ВК: \n'
-              'Вы можете использовать инструкцию http://github.com\n'
-              'После получения необходимо поместить токен в файл ".env" в папаку со скриптом\n'
+              'Вы можете использовать инструкцию https://docs.google.com/document/d/1A9VaBAopI0teIKTZsUaXGORa_6Ru_c9Xz9xau95lxaA/edit?usp=drive_link\n'
+              'После получения необходимо поместить токен в файл ".env" в папку со скриптом\n'
               'Пример содержимого файла ".env" можно найти в файле ".env.example"')
         exit(0)
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     is_not_ya_token = ya_disk_token is None
     while is_not_ya_token:
-        ya_disk_token = input('Введине токен яндекс диска:')
+        ya_disk_token = input('Введите токен яндекс диска:')
         is_not_ya_token = ya_disk_token is None or len(ya_disk_token) == 0
 
     default_folder = '/backup_' + datetime.now().strftime("%Y-%m-%d %H.%M.%S").replace(' ', '_')
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         ya_disk_folder = input(f'Введите название папки на яндекс диске (по-умолчанию {default_folder}):') or default_folder
 
     if json_folder is None:
-        json_folder = input(f'Введите папку, куда сохранить данные о фотографиях (по-умолчнию {os.getcwd()})') or os.getcwd()
+        json_folder = input(f'Введите папку, куда сохранить данные о фотографиях (по-умолчанию {os.getcwd()})') or os.getcwd()
     json_file_path = os.path.join(json_folder, f'photos_{default_folder[1:]}.json')
 
     photos = backup_vk(vk_api_token, vk_user, ya_disk_token, vk_api_version='5.131', folder=ya_disk_folder, pb_bar=True)
